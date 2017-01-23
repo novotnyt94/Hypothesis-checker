@@ -81,9 +81,10 @@ int main(int argc, char ** argv) {
 
 /*CHANGES MADE AFTER TESTING:
 - Fully translated to english. Polished the code.
-- Modified the type 1 number of failures to work for dimensions != 5
-- Completed the path checking in DEBUG mode
-- Added automatic check whether the hypothesis is satisfied
-- Fixed CHECK_INPUT for the new version
-- Cosmetic changes in the code of class 'matchings'
+- Modified the type 1 number of failures to work for dimensions != 5.
+- Completed the path checking in DEBUG mode.
+- Added automatic check whether the hypothesis is satisfied.
+- Fixed CHECK_INPUT for the new version.
+- Cosmetic changes in the code of class 'matchings'.
+- Removed the 'number of failures' testing for dimension 3, which results are not regular.
 */
