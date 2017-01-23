@@ -27,8 +27,8 @@ namespace cube {
 		/* Sets all_parallel to true iff all edges of the matching crosses first dimension (all matchings in minimal form with at least one edge from hypercube has edge 0->1). */
 		static void check_one_dimension(const perfect_matching & matching);
 
-		/* Tests failed path to fulfill hypothesis. */
-		static void check_hypothesis(const path & failed_path);
+		/* Tests failed path to fulfil hypothesis. */
+		static void check_hypothesis(path & failed_path);
 
 		/* Checks if the number of unsolved paths respects expected number if any failure was found for a matching. */
 		static void number_check();

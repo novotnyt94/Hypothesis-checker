@@ -87,4 +87,5 @@ int main(int argc, char ** argv) {
 - Fixed CHECK_INPUT for the new version.
 - Cosmetic changes in the code of class 'matchings'.
 - Removed the 'number of failures' testing for dimension 3, which results are not regular.
+- Changed the half-layer search into more straightforward version
 */

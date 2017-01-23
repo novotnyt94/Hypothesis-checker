@@ -132,42 +132,75 @@ namespace cube {
 			std::cout << "Number OK: " << bad_num << std::endl;
 		}
 	}
-	void pathfinding::check_hypothesis(const path & this_path) {
+	void pathfinding::check_hypothesis(path & this_path) {
 		bad_num++;
-		//If all edges are parallel, ending vertices should be in opposite partities 
-		if (all_parallel) {
-			if (!(this_path.start_vertex ^ this_path.end_vertex) & 1) { 
-				std::cout << "Matching type 1 failed: " << (size_t)this_path.start_vertex << ", " << (size_t)this_path.end_vertex << " are not in opposite dimensions." << std::endl;
-				counterexamples++;
-				return;
-			}
+		sfi start_vertex = this_path.start_vertex;
+		sfi end_vertex = this_path.end_vertex;
+		sfi start_neighbour = this_path.base_matching[start_vertex];
+		sfi end_neighbour = this_path.base_matching[end_vertex];
 
+		//matching transformation
+		this_path.base_matching[start_vertex] = INVALID;
+		this_path.base_matching[end_vertex] = INVALID;
+		this_path.base_matching[start_neighbour] = end_neighbour;
+		this_path.base_matching[end_neighbour] = start_neighbour;
+
+		//find some short edge -> half-layer must be oriented that way (if there exist a short edge non-parallel to the half-layer, its endings cover both possible half¨layers, a contradiction)
+		sfi edge_dim = 0;
+		FOR_VERTICES(vertex_id) {
+			if (this_path.base_matching[vertex_id] > vertex_id) {
+				if (one_cnt[this_path.base_matching[vertex_id] ^ vertex_id] == 1) {
+					edge_dim = this_path.base_matching[vertex_id] ^ vertex_id;
+					break;
+				}
+			}
 		}
-		//Else the matching created by removing edges from start_vertex and end_vertex and adding edge of their neighbours should be a half-layer.
-		//Aditionally, there is a test if the added edge lies in Q(d). This is not required for the hypothesis, but it should hold and was confirmed for d=5.
-		else {
-			sfi start_neighbour = this_path.base_matching[this_path.start_vertex];
-			sfi end_neighbour = this_path.base_matching[this_path.end_vertex];
-			if (one_cnt[start_neighbour ^ end_neighbour] > 1) {
-				std::cout << "Matching type 2 failed: Neighbours of " << (size_t)this_path.start_vertex << ", " << (size_t)this_path.end_vertex << " are not neighbours."<< std::endl;
-				counterexamples++;
-				return;
+
+		//if no short edge was found, there cannot be a half-layer
+		bool fail = false;
+		if (edge_dim == 0) {
+			fail = true;
+		}
+
+		//test that start_vertex and end_vertex are in opposite parts (they have different parity)
+		if (!((start_vertex ^ end_vertex) & edge_dim)) {
+			fail = true;
+		}
+		
+		//basic constraints holds, check the half-layer
+		if (!fail) {
+			sfi parity;
+
+			if (!(start_vertex & edge_dim)) {
+				//start_vertex lies in Q_L
+				parity = (one_cnt[start_vertex] & 1) ^ 1;
+			}
+			else {
+				//end_vertex lies in Q_L
+				parity = (one_cnt[end_vertex] & 1) ^ 1;
 			}
 
-			//test with switching edges
-			sfi first_ignored = std::min(start_neighbour, this_path.start_vertex);
-			sfi second_ignored = std::min(end_neighbour, this_path.end_vertex);
-			sfi required_dim = start_neighbour ^ end_neighbour;
+			//check half-layer
 			FOR_VERTICES(vertex_id) {
-				sfi other_vertex = this_path.base_matching[vertex_id];
-				if (other_vertex > vertex_id && !((other_vertex ^ vertex_id) & required_dim)) {
-					if (vertex_id != first_ignored && vertex_id != second_ignored) {
-						std::cout << "Matching type 2 failed: Not a half-layer " << (size_t)this_path.start_vertex << ", " << (size_t)this_path.end_vertex << std::endl;
-						counterexamples++;
-						return;
+				//every vertex in (n-1)-cube of good parity must lie in half-layer
+				if (!(vertex_id & edge_dim) && (one_cnt[vertex_id] & 1) == parity) {
+					if (this_path.base_matching[vertex_id] != (vertex_id ^ edge_dim)) {						
+						fail = true;
+						break;
 					}
 				}
 			}
+		}
+
+		//reset the matching
+		this_path.base_matching[start_vertex] = start_neighbour;
+		this_path.base_matching[end_vertex] = end_neighbour;
+		this_path.base_matching[start_neighbour] = start_vertex;
+		this_path.base_matching[end_neighbour] = end_vertex;
+
+		if (fail) {
+			std::cout << "Matching failed: Not a half-layer " << (size_t)start_vertex << ", " << (size_t)end_vertex << std::endl;
+			counterexamples++;
 		}
 	}
 
