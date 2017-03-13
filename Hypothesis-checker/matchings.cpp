@@ -302,9 +302,11 @@ namespace cube {
 		//Try to map all edges 
 		FOR_VERTICES(vertex_id) {
 			sfi second_vertex = matching[vertex_id];
-			if (second_vertex != INVALID) { //vyberu platné hrany jako minimální hrany (obìma orientacemi, tj. vrchol vertex_id jde vždy na 0)
+			//choose every valid edges for the minimal one (both orientations)
+			if (second_vertex != INVALID) {
 				sfi dimension_diff = one_cnt[vertex_id ^ second_vertex];
-				if (dimension_diff > one_cnt[best_isomorphic[0]]) //best_isomorphic už je jistì lepší, protože má lepší první hranu
+				//best_isomorphic is better while it has better lowest edge
+				if (dimension_diff > one_cnt[best_isomorphic[0]])
 					continue;
 
 				sfi end_min = 0;
@@ -313,12 +315,12 @@ namespace cube {
 					end_min += 1;
 					dimension_diff--;
 				}
-				//získám èást transformace
+				//get as much information as possible
 				get_transformation(edge(vertex_id, second_vertex), edge(0, end_min));
-				//zkusím jí doplnit všemi zpùsoby
 				FOR_DIMENSION(dim_id) {
 					used_dimensions[dim_id] = false;
 				}
+				//try all valid permutations
 				generate_possible_transformations(0);
 			}
 		}
