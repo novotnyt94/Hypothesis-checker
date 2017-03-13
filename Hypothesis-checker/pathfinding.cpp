@@ -266,7 +266,7 @@ namespace cube {
 		add_edge(actual_path.start_vertex, actual_path.end_vertex);
 	}
 
-	void pathfinding::add_edge(const sfi first_vertex, const sfi second_vertex) {
+	void pathfinding::add_edge(sfi first_vertex, sfi second_vertex) {
 #ifdef _DEBUG
 		//Check that adding this edge is valid
 		if (vertex_component[first_vertex] == vertex_component[second_vertex])
@@ -277,6 +277,12 @@ namespace cube {
 
 		sfi new_component_id = vertex_component[first_vertex];
 		sfi old_component_id = vertex_component[second_vertex];
+
+		//rename the smaller component
+		if (component_sizes[old_component_id] > component_sizes[new_component_id]) {
+			std::swap(first_vertex, second_vertex);
+			std::swap(old_component_id, new_component_id);
+		}
 		sfi old_component_size = component_sizes[old_component_id];
 
 		//Component sizes actualization

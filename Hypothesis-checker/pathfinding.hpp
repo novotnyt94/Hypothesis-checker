@@ -41,7 +41,7 @@ namespace cube {
 
 		/* Adds selected edge to partial path and properly actualizes search data.
 		   Component number of second_vertex will be changed to component number of first vertex. */
-		static void add_edge(const sfi first_vertex, const sfi second_vertex);
+		static void add_edge(sfi first_vertex, sfi second_vertex);
 
 		/* Removes selected edge from partial path and properly actualizes search data 
 		   The component of second vertex will get new component number. */
