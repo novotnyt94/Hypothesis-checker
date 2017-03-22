@@ -1,5 +1,5 @@
 # Hypothesis-checker
-Source code for the checker of induction assumption for Gregor-Škrekovski theorem.
+Source code of the checker of induction assumption for an article by P. Gregor, T. Novotný, R. Škrekovski: "Extending perfect matchings to Gray codes with prescribed ends".
 
 Used language: C++, standard C++11.
 
@@ -11,4 +11,4 @@ Compilation and run:
 
 3. Run the program with optional parameters -i (input matchings file), -m (output matchings file) and/or -o (results).
 
-Detailed description of the program is provided in enclosed documentation.
+Detailed description of the program is provided in the enclosed documentation.
