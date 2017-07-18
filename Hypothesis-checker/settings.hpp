@@ -14,14 +14,14 @@ namespace cube {
 	//fastest 8-bit data type, used for encoding vertices numbers and for counting over related (small) objects
 	typedef uint_fast8_t sfi; 
 
-	//fastest 64-bit data type, used for counting possibly large numbers - e. g. number of generated matchings.
+	//fastest 64-bit data type, used for counting possibly large numbers - e. g. number of generated matchings or to store compressed matchings.
 	typedef uint_fast64_t llfi; 
 
 	/*---------------------------------*/
 	/* Available compile-time settings */
 	/*---------------------------------*/
 
-	//selected dimension d of hypercube - availble dimensions are 4 and 5, still d=3 should work as well (untested).
+	//selected dimension n of hypercube - availble dimensions are 3, 4 and 5.
 	static const sfi DIMENSION = 5; 
 
 	//Number of required edges to be from hypercube in generated matchings
@@ -43,7 +43,7 @@ namespace cube {
 	/* Dependent constants and complex data structures */
 	/*-------------------------------------------------*/
 
-	//Number of vertices in Q(d)
+	//Number of vertices in Q_n
 	static const sfi VERTICES = 1 << DIMENSION;
 
 	//Perfect matching size
@@ -80,16 +80,20 @@ namespace cube {
 	/* Other useful constants and macros */
 	/*-----------------------------------*/
 
-	//Pre-counted array of Hamming weight for numbers 0 to 63 - used for fast determination of distance of two vertices in hypercube (one_cnt[u^v]).
-	static const std::array<sfi, 64> one_cnt = { 
-		0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
-		1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5, 2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6
+	//Pre-counted array of Hamming weight for numbers 0 to 63 - used for fast determination of distance of two vertices in hypercube (hamming[u^v]).
+	static const std::array<sfi, 64> hamming = { 
+		0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4,
+		1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+		1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5,
+		2, 3, 3, 4, 3, 4, 4, 5, 3, 4, 4, 5, 4, 5, 5, 6
 	}; 
 
 	//Pre-counted array of indices of top non-zero bit for numbers 0 to 63.
 	static const std::array<sfi, 64> top_one = { 
-  INVALID, 0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
-		5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5
+  INVALID, 0, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3,
+        4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+		5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 
+		5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5
 	};
 
 	//macros for synoptical iteration over often used arrays

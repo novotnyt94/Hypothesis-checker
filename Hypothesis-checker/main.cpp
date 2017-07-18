@@ -1,3 +1,11 @@
+/**
+induction-assumption-checker, main.cpp
+File with entry point of the program.
+
+@author Tomas Novotny
+@version 1.0 18/08/17
+*/
+
 #include "settings.hpp"
 #include "argument_handler.hpp"
 #include "serializer.hpp"
@@ -9,6 +17,8 @@
 
 using namespace cube;
 
+
+/* Entry point of the program, handles calls of correct subrutines. */
 int main(int argc, char ** argv) {
 	//By switching off sync the speed of I/O operations will greatly increase.
 	std::ios::sync_with_stdio(false); 
@@ -17,9 +27,12 @@ int main(int argc, char ** argv) {
 	result_set & found_matchings = matchings::results;
 
 	//Obtaining perfect matchings, either from file or from generator
-	if (argument_handler::is_input) {
+	if (argument_handler::is_input || argument_handler::is_comp_input) {
 		std::cout << "Loading matchings... ";
-		found_matchings = serializer::load_matchings(argument_handler::input_file);
+		if (argument_handler::is_input)
+			found_matchings = serializer::load_matchings(argument_handler::input_file);
+		else 
+			found_matchings = serializer::load_comp_matchings(argument_handler::comp_input_file);
 		std::cout << "Done" << std::endl;
 	}
 	else {
@@ -30,9 +43,16 @@ int main(int argc, char ** argv) {
 	std::cout << "Matchings found: " << found_matchings.size() << std::endl;
 
 	//Save them, if it is required
-	if (argument_handler::is_output1) {
+	if (argument_handler::is_output) {
 		std::cout << "Saving matchings... ";
-		serializer::save_matchings(argument_handler::output1_file, found_matchings);
+		serializer::save_matchings(argument_handler::output_file, found_matchings);
+		std::cout << "Done" << std::endl;
+	}
+
+	//Save them compressed, if it is required
+	if (argument_handler::is_comp_output) {
+		std::cout << "Saving compressed matchings... ";
+		serializer::save_comp_matchings(argument_handler::comp_output_file, found_matchings);
 		std::cout << "Done" << std::endl;
 	}
 
@@ -42,9 +62,9 @@ int main(int argc, char ** argv) {
 	std::cout << "Done" << std::endl;
 
 	//Again, save them, if it is required
-	if (argument_handler::is_output2) {
+	if (argument_handler::is_path_output) {
 		std::cout << "Saving paths... ";
-		serializer::save_paths(argument_handler::output2_file, found_paths);
+		serializer::save_paths(argument_handler::path_output_file, found_paths);
 		std::cout << "Done" << std::endl;
 	}
 
@@ -75,17 +95,6 @@ int main(int argc, char ** argv) {
 			std::cout << "impossible: " << failed << std::endl;
 		}
 	}
-	std::cout << "Total number of unsolved matchings: " << total << std::endl;
+	std::cout << "Total number of matchings with unsolved configurations: " << total << std::endl;
 	return 0;
 }
-
-/*CHANGES MADE AFTER TESTING:
-- Fully translated to english. Polished the code.
-- Modified the type 1 number of failures to work for dimensions != 5.
-- Completed the path checking in DEBUG mode.
-- Added automatic check whether the hypothesis is satisfied.
-- Fixed CHECK_INPUT for the new version.
-- Cosmetic changes in the code of class 'matchings'.
-- Removed the 'number of failures' testing for dimension 3, which results are not regular.
-- Changed the half-layer search into more straightforward version
-*/

@@ -2,6 +2,7 @@
 
 namespace cube {
 	
+
 	llfi compress(perfect_matching & source_matching) {
 		llfi res = 0;
 
@@ -21,7 +22,7 @@ namespace cube {
 		return res;
 	}
 
-	perfect_matching decompress(llfi comprimed_matching) {
+	perfect_matching decompress(llfi compressed_matching) {
 		perfect_matching res;
 		/* Just reversed process for compress(), starting from first edge. */
 		FOR_VERTICES(vertex_id) {
@@ -31,9 +32,9 @@ namespace cube {
 		for(sfi edge_id = MATCH_SIZE - 1; edge_id != INVALID; edge_id--)	{
 			while (res[first_empty] != INVALID)
 				first_empty++;
-			sfi other_vertex = (sfi)(((comprimed_matching >> (4*edge_id)) & (DIMENSION_BITS >> 1)) << 1);
+			sfi other_vertex = (sfi)(((compressed_matching >> (4*edge_id)) & (DIMENSION_BITS >> 1)) << 1);
 			//If thera is even number of non-zero bits, last bit was 1, otherwise 0. 
-			if (!(one_cnt[other_vertex ^ first_empty] & 1))
+			if (!(hamming[other_vertex ^ first_empty] & 1))
 				other_vertex ^= 1;
 
 			res[first_empty] = other_vertex;
@@ -60,7 +61,7 @@ namespace cube {
 		The final result will be:
 
 		 /-- # of vertices - # of edges - 1 ---\ /3 * (11 - # of edges)\ /------------ 4 * # of edges -----------------\
-		(bitmap with ommited bit for 0th vertex | possiblly empty space | 4 bits of 1st edge | ... | 4 bits of last edge)   */
+		(bitmap with ommited bit for 0th vertex | possibly empty space  | 4 bits of 1st edge | ... | 4 bits of last edge)   */
 
 		FOR_VERTICES(vertex_id) {
 			if (source_matching[vertex_id] == INVALID) {
@@ -91,7 +92,7 @@ namespace cube {
 	void matchings::find_matchings() {
 		clear_matching();
 		
-		//if there is at least 1 edge from Q(d), there exists an isomorphic matching with edge 0->1.
+		//if there is at least 1 edge from Q_n, there exists an isomorphic matching with edge 0->1.
 		if (HYPER_EDGE_CNT > 0) {
 			hyper_edges = 1;
 			add_edge(0, 1);
@@ -123,14 +124,9 @@ namespace cube {
 		// Try to add any possible edge  
 		for (sfi end_vertex = first_empty + 1; end_vertex < VERTICES; end_vertex++) {
 			// We need bipartitness
-			if (!is_set(end_vertex) && (one_cnt[first_empty ^ end_vertex] & 1)) {
-				
-				//if (results.size() > 100000) {
-					//break;
-				//}
-
-				// Actualize number of edges used from Q(d), check constrain
-				bool is_hyper = (one_cnt[first_empty ^ end_vertex] == 1);
+			if (!is_set(end_vertex) && (hamming[first_empty ^ end_vertex] & 1)) {
+				// Actualize number of edges used from Q_n, check constrain
+				bool is_hyper = (hamming[first_empty ^ end_vertex] == 1);
 				if (is_hyper) {
 					
 					if (HYPER_EDGE_CNT <= hyper_edges)
@@ -304,13 +300,13 @@ namespace cube {
 			sfi second_vertex = matching[vertex_id];
 			//choose every valid edges for the minimal one (both orientations)
 			if (second_vertex != INVALID) {
-				sfi dimension_diff = one_cnt[vertex_id ^ second_vertex];
+				sfi dimension_diff = hamming[vertex_id ^ second_vertex];
 				//best_isomorphic is better while it has better lowest edge
-				if (dimension_diff > one_cnt[best_isomorphic[0]])
+				if (dimension_diff > hamming[best_isomorphic[0]])
 					continue;
 
-				sfi end_min = 0;
-				while (dimension_diff > 0) {
+				sfi end_min = 1;
+				while (dimension_diff > 1) {
 					end_min <<= 1;
 					end_min += 1;
 					dimension_diff--;
@@ -340,7 +336,7 @@ namespace cube {
 
 		
 		//Get constrains for possible permutations
-		sfi dist = one_cnt[base_edge.first ^ base_edge.second];
+		sfi dist = hamming[base_edge.first ^ base_edge.second];
 		sfi dist_bits = (1 << dist) - 1;
 		FOR_DIMENSION(dim_id) {
 			if ((base_edge.first ^ base_edge.second) & (1 << dim_id)) 

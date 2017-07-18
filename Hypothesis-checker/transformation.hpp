@@ -21,7 +21,7 @@ namespace cube {
 		/* Returns if dim_permutation is completely set. */
 		bool is_unique() {
 			FOR_DIMENSION(dim_id) {
-				if (one_cnt[dim_permutation[dim_id]] != 1)
+				if (hamming[dim_permutation[dim_id]] != 1)
 					return false;
 			}
 			return true;

@@ -14,12 +14,12 @@ namespace cube {
 	/* Provides functions to find paths for any set of perfect matching in B(2^d) for all pair of vertices in opposite partities as its endpoints. Includes analysis of failed cases in respect to the hypothesis. */
 	class pathfinding {
 	public:
-		/* Tries to find Hamiltonian paths for every pair of vertices in opposite partities (except the connected ones) composed of given perfect matching and edges from Q(d) for all matchings given as a parameter.
+		/* Tries to find Hamiltonian paths for every pair of vertices in opposite partities (except the connected ones) composed of given perfect matching and edges from Q_n for all matchings given as a parameter.
 		   Returns an array of all results, either found path (has_solution=true) or information about failure (has_solution=false). Tests the failures if they fulfill the hypothesis.
 		   Warning: The result size is much larger than input, thus this function is not suitable for all posible matchings. */
 		static std::vector<path> find_paths(const result_set & matchings);
 
-		/* Tries to find Hamiltonian paths for every pair of vertices in opposite partities (except the connected ones) composed of given perfect matching and edges from Q(d) for all matchings given as a parameter.
+		/* Tries to find Hamiltonian paths for every pair of vertices in opposite partities (except the connected ones) composed of given perfect matching and edges from Q_n for all matchings given as a parameter.
 		   Returns an array of all results of those matchings, in which at least one failure was found. Tests the failures if they fulfill the hypothesis. */
 		static std::vector<path> find_unsolved_paths(const result_set & matchings);
 
@@ -47,7 +47,7 @@ namespace cube {
 		   The component of second vertex will get new component number. */
 		static void remove_edge(const sfi first_vertex, const sfi second_vertex);
 
-		/* Tries to recursively find edges from Q(d) to complete the path.
+		/* Tries to recursively find edges from Q_n to complete the path.
 		   Always selects the most constrained vertex to continue - this reduces the branching factor of search. */
 		static void choose_next(sfi edges_added);
 

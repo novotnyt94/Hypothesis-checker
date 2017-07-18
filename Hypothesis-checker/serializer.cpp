@@ -28,36 +28,84 @@ namespace cube {
 		return std::move(found_matchings);
 	}
 
+	result_set serializer::load_comp_matchings(const std::string file_name) { //TODO
+		//tries to open selected file
+		input_file.open(file_name, std::ios::in | std::ios::binary);
+		if (input_file.fail())
+			errors::input_error("An error occured when opening " + file_name);
+
+		result_set found_matchings;
+		while (true) {
+			llfi actual_matching;
+			input_file.read((char*)& actual_matching, sizeof(llfi));
+
+			if (input_file.fail()) {
+				//file read failed - if it was not due to EOF, there was some error
+				if (input_file.eof())
+					break;
+				else
+					errors::input_error("Unexpected error while reading input file!");
+			}
+#ifdef CHECK_INPUT
+			perfect_matching decompressed_matching = decompress(actual_matching);
+			FOR_VERTICES(vertex_id) {
+				if (decompressed_matching[vertex_id] == INVALID)
+					errors::input_error("Some matching is corrupted!");
+			}
+#endif //CHECK_INPUT
+
+			found_matchings.insert(actual_matching);
+		}
+		input_file.close();
+		return std::move(found_matchings);
+	}
+
 	void serializer::save_matchings(const std::string file_name, const result_set & matchings) {
 		//tries to open selected file
-		output1_file.open(file_name, std::ios::out | std::ios::binary);
-		if (output1_file.fail())
+		output_file.open(file_name, std::ios::out);
+		if (output_file.fail())
+			errors::output_error("An error occured when opening " + file_name);
+		//save the matching in non-comprimed state (may create HUGE files for DIMENSION=5)
+		for (llfi block_id = 0; block_id < PRIME_MOD; block_id++) {
+			for (auto it = matchings[block_id].begin(); it != matchings[block_id].end(); it++) {
+				output_file << get_serialized_matching(decompress(*it)) << std::endl;
+			}
+		}
+		if (output_file.fail())
+			errors::output_error("An error occured while saving matchings!");
+		output_file.close();
+	}
+
+	void serializer::save_comp_matchings(const std::string file_name, const result_set & matchings) {
+		//tries to open selected file
+		output_comp_file.open(file_name, std::ios::out | std::ios::binary);
+		if (output_comp_file.fail())
 			errors::output_error("An error occured when opening " + file_name);
 		//save the matching in comprimed state (still creates almost 10GB file for d=5)
 		for (llfi block_id = 0; block_id < PRIME_MOD; block_id++) {
 			for (auto it = matchings[block_id].begin(); it != matchings[block_id].end(); it++) {
-				output1_file.write((char*)&(*it), sizeof(*it));
+				output_comp_file.write((char*)&(*it), sizeof(*it));
 			}
 		}
-		if (output1_file.fail())
-			errors::output_error("An error occured while saving matchings!");
-		output1_file.close();
+		if (output_comp_file.fail())
+			errors::output_error("An error occured while saving compressed matchings!");
+		output_comp_file.close();
 	}
 
 
 	void serializer::save_paths(const std::string file_name, const std::vector<path> & paths) {
 		//tries to open selected file
-		output2_file.open(file_name);
-		if (output2_file.fail())
+		output_path_file.open(file_name);
+		if (output_path_file.fail())
 			errors::output_error("An error occured when opening " + file_name);
 		for (size_t path_id = 0; path_id != paths.size(); path_id++) {
 			if (path_id % ((VERTICES >> 1) * ((VERTICES >> 1) - 1)) == 0)
-				output2_file << "Matching " << get_serialized_matching(paths[path_id].base_matching) << std::endl;
-			output2_file << "\t" << get_serialized_path(paths[path_id]) << std::endl;
+				output_path_file << "Matching " << get_serialized_matching(paths[path_id].base_matching) << std::endl;
+			output_path_file << "\t" << get_serialized_path(paths[path_id]) << std::endl;
 		}
-		if (output2_file.fail())
+		if (output_path_file.fail())
 			errors::output_error("An error occured while saving matchings!");
-		output2_file.close();
+		output_path_file.close();
 	}
 
 	perfect_matching serializer::parse_matching(std::string & line) {
@@ -191,6 +239,7 @@ namespace cube {
 	}
 
 	std::ifstream serializer::input_file;
-	std::ofstream serializer::output1_file;
-	std::ofstream serializer::output2_file;
+	std::ofstream serializer::output_file;
+	std::ofstream serializer::output_comp_file;
+	std::ofstream serializer::output_path_file;
 }

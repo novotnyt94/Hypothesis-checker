@@ -18,8 +18,14 @@ namespace cube {
 		//Loads matchings from selected file
 		static result_set load_matchings(const std::string file_name);
 
+		//Loads matchings from selected file
+		static result_set load_comp_matchings(const std::string file_name);
+
 		//Saves matchings to selected file
 		static void save_matchings(const std::string file_name, const result_set & matchings);
+
+		//Saves matchings to selected file
+		static void save_comp_matchings(const std::string file_name, const result_set & matchings);
 
 		//Saves paths to selected file
 		static void save_paths(const std::string file_name, const std::vector<path> & paths);
@@ -31,7 +37,7 @@ namespace cube {
 		//Transforms text-based edge (v(x)->v(y)) into structure edge.
 		static edge parse_edge(std::string && token);
 
-		//Transforms perfect matching into text (now unused)
+		//Transforms perfect matching into u_1->v_1 u_2->v_2 ... u_k->v_k
 		static std::string get_serialized_matching(const perfect_matching & matching);
 
 		//Serializes given path into p(1)->p(2)->...->p(n)
@@ -45,10 +51,13 @@ namespace cube {
 		static std::ifstream input_file;
 
 		//Matching output file stream
-		static std::ofstream output1_file;
+		static std::ofstream output_file;
+
+		//Compressed matching output file stream
+		static std::ofstream output_comp_file;
 
 		//Path output file stream
-		static std::ofstream output2_file;
+		static std::ofstream output_path_file;
 	};
 }
 

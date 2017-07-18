@@ -19,13 +19,13 @@ namespace cube {
 	/* Compress given perfect matching into llfi. */
 	llfi compress(perfect_matching & source_matching);
 
-	/* Decompress given llfi back into perfect matching structure. */
-	perfect_matching decompress(llfi comprimed_matching);
+	/* Decompress given compressed perfect matching back into perfect matching structure. */
+	perfect_matching decompress(llfi compressed_matching);
 
-	/* Compress partial matching with up to 11 edges into llfi. */
+	/* Compress partial matching with up to 11 edges into llfi.	*/
 	llfi compress_partial(perfect_matching & source_matching);
 
-	/* TODO: not required, not yet implemented */
+	/* TODO: Not required, so not implemented */
 	//perfect_matching decompress_partial(llfi comprimed_matching);
 
 	/* Class for generating all possible non-isomorphic matchings and providing functions for transforming matchings with given isomorphism. */
@@ -84,9 +84,9 @@ namespace cube {
 		//Sets transform_data to most-constricted possible after mapping base_edge to transformed_edge (ordering matters).
 		static void get_transformation(const edge & base_edge, const edge & transformed_edge);
 		
-		//Returns true iff number1 and number2 have the same number of bits set to 1 (they have the same distance to some vertex
+		//Returns true iff number1 and number2 have the same number of bits set to 1 (they have the same distance to some vertex)
 		static bool is_same_dist(const sfi number1, const sfi number2) {
-			return (one_cnt[number1] == one_cnt[number2]);
+			return (hamming[number1] == hamming[number2]);
 		}
 
 		/* Used data structures */
@@ -102,7 +102,7 @@ namespace cube {
 		//Set of visited states - helps to reduce the branching factor
 		static result_set partial_matchings;
 
-		// Number of edges in actual partial matching from Q(d) 
+		// Number of edges in actual partial matching from Q_n 
 		static sfi hyper_edges;
 
 		//Matching after performing actual transformation

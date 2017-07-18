@@ -13,17 +13,41 @@ namespace cube {
 				if (arg_id == argc || argv[arg_id][0] == '-') {
 					errors::argument_error("Input file name expected after -i!");
 				}
+				if (is_input || is_comp_input) {
+					errors::argument_error("Only one input file may be specified!");
+				}
 				is_input = true;
 				input_file = argv[arg_id];
 				arg_id++;
 				break;
 
-			case 'm': //Matching output file
+			case 'c': //Compressed input file
+				if (arg_id == argc || argv[arg_id][0] == '-') {
+					errors::argument_error("Input file name expected after -c!");
+				}
+				if (is_input || is_comp_input) {
+					errors::argument_error("Only one input file may be specified!");
+				}
+				is_comp_input = true;
+				comp_input_file = argv[arg_id];
+				arg_id++;
+				break;
+
+			case 'p': //Matching output file
+				if (arg_id == argc || argv[arg_id][0] == '-') {
+					errors::argument_error("Output file name expected after -p!");
+				}
+				is_output = true;
+				output_file = argv[arg_id];
+				arg_id++;
+				break;
+
+			case 'm': //Compressed matching output file
 				if (arg_id == argc || argv[arg_id][0] == '-') {
 					errors::argument_error("Output file name expected after -m!");
 				}
-				is_output1 = true;
-				output1_file = argv[arg_id];
+				is_comp_output = true;
+				comp_output_file = argv[arg_id];
 				arg_id++;
 				break;
 
@@ -31,8 +55,8 @@ namespace cube {
 				if (arg_id == argc || argv[arg_id][0] == '-') {
 					errors::argument_error("Output file name expected after -o!");
 				}
-				is_output2 = true;
-				output2_file = argv[arg_id];
+				is_path_output = true;
+				path_output_file = argv[arg_id];
 				arg_id++;
 				break;
 
@@ -43,9 +67,13 @@ namespace cube {
 	}
 
 	bool argument_handler::is_input = false;
-	bool argument_handler::is_output1 = false;
-	bool argument_handler::is_output2 = false;
+	bool argument_handler::is_comp_input = false;
+	bool argument_handler::is_output = false;
+	bool argument_handler::is_comp_output = false;
+	bool argument_handler::is_path_output = false;
 	std::string argument_handler::input_file;
-	std::string argument_handler::output1_file;
-	std::string argument_handler::output2_file;
+	std::string argument_handler::comp_input_file;
+	std::string argument_handler::output_file;
+	std::string argument_handler::comp_output_file;
+	std::string argument_handler::path_output_file;
 }

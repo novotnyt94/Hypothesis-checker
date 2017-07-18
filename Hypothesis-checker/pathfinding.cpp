@@ -16,7 +16,7 @@ namespace cube {
 				FOR_VERTICES(start_vertex) {
 					for (sfi end_vertex = start_vertex + 1; end_vertex < VERTICES; end_vertex++) {
 						//If start_vertex and end_vertex are in opposite partities and not connected, try to find a path
-						if (((one_cnt[start_vertex] - one_cnt[end_vertex]) & 1) == 1 && act_matching[start_vertex] != end_vertex) {
+						if (((hamming[start_vertex] - hamming[end_vertex]) & 1) == 1 && act_matching[start_vertex] != end_vertex) {
 							actual_path = path(act_matching, start_vertex, end_vertex);
 							solve();
 							//Check hypothesis for the failure
@@ -62,7 +62,7 @@ namespace cube {
 				for (sfi start_vertex = 0; start_vertex < VERTICES; start_vertex++) {
 					for (sfi end_vertex = start_vertex + 1; end_vertex < VERTICES; end_vertex++) {
 						//If start_vertex and end_vertex are in opposite partities and not connected, try to find a path
-						if (((one_cnt[start_vertex] - one_cnt[end_vertex]) & 1) == 1 && act_matching[start_vertex] != end_vertex) {
+						if (((hamming[start_vertex] - hamming[end_vertex]) & 1) == 1 && act_matching[start_vertex] != end_vertex) {
 							actual_path = path(act_matching, start_vertex, end_vertex);
 							solve();
 							//Check hypothesis for the failure
@@ -117,14 +117,14 @@ namespace cube {
 					std::cout << "Number OK (type 1): " << bad_num << std::endl;
 				}
 				else
-					std::cout << "Matching type 1 failed: Unexpected number " << bad_num << std::endl;
+					std::cout << "Matching type 1 warning: Unexpected number " << bad_num << std::endl;
 			}
 			else {
 				if (bad_num == 1 || bad_num == 2) {
 					std::cout << "Number OK (type 2): " << bad_num << std::endl;
 				}
 				else
-					std::cout << "Matching type 2 failed: Unexpected number " << bad_num << std::endl;
+					std::cout << "Matching type 2 warning: Unexpected number " << bad_num << std::endl;
 			}
 		}
 		//for dimension 3, numbers of failures are not regular, therefore we will not test it
@@ -145,11 +145,11 @@ namespace cube {
 		this_path.base_matching[start_neighbour] = end_neighbour;
 		this_path.base_matching[end_neighbour] = start_neighbour;
 
-		//find some short edge -> half-layer must be oriented that way (if there exist a short edge non-parallel to the half-layer, its endings cover both possible half¨layers, a contradiction)
+		//find some short edge -> half-layer must be oriented that way (if there exist a short edge non-parallel to the half-layer, its endings cover both possible halflayers, a contradiction)
 		sfi edge_dim = 0;
 		FOR_VERTICES(vertex_id) {
-			if (this_path.base_matching[vertex_id] > vertex_id) {
-				if (one_cnt[this_path.base_matching[vertex_id] ^ vertex_id] == 1) {
+			if (this_path.base_matching[vertex_id] > vertex_id && vertex_id != start_vertex && vertex_id != end_vertex) {
+				if (hamming[this_path.base_matching[vertex_id] ^ vertex_id] == 1) {
 					edge_dim = this_path.base_matching[vertex_id] ^ vertex_id;
 					break;
 				}
@@ -173,17 +173,17 @@ namespace cube {
 
 			if (!(start_vertex & edge_dim)) {
 				//start_vertex lies in Q_L
-				parity = (one_cnt[start_vertex] & 1) ^ 1;
+				parity = (hamming[start_vertex] & 1) ^ 1;
 			}
 			else {
 				//end_vertex lies in Q_L
-				parity = (one_cnt[end_vertex] & 1) ^ 1;
+				parity = (hamming[end_vertex] & 1) ^ 1;
 			}
 
 			//check half-layer
 			FOR_VERTICES(vertex_id) {
 				//every vertex in (n-1)-cube of good parity must lie in half-layer
-				if (!(vertex_id & edge_dim) && (one_cnt[vertex_id] & 1) == parity) {
+				if (!(vertex_id & edge_dim) && (hamming[vertex_id] & 1) == parity) {
 					if (this_path.base_matching[vertex_id] != (vertex_id ^ edge_dim)) {						
 						fail = true;
 						break;
@@ -220,7 +220,7 @@ namespace cube {
 				act_vertex = actual_path.base_matching[act_vertex];
 				if (act_vertex == actual_path.end_vertex)
 					errors::assert_error("Some vertex is not on the path!");
-				if (one_cnt[act_vertex ^ actual_path.found_path[act_vertex]] != 1)
+				if (hamming[act_vertex ^ actual_path.found_path[act_vertex]] != 1)
 					errors::assert_error("Vertices marked as neighbours on the path are not neighbours!");
 				
 				act_vertex = actual_path.found_path[act_vertex];
@@ -247,8 +247,8 @@ namespace cube {
 				vertex_component[first_vertex] = component_id;
 				vertex_component[second_vertex] = component_id;
 				component_id++;
-				//setting neighbours_bitmap (if the edge is from Q(d), we cannot use that edge, otherwise we can use any edge):
-				if (one_cnt[first_vertex ^ second_vertex] == 1) {
+				//setting neighbours_bitmap (if the edge is from Q_n, we cannot use that edge, otherwise we can use any edge):
+				if (hamming[first_vertex ^ second_vertex] == 1) {
 					neighbours_bitmap[first_vertex] = DIMENSION_BITS ^ (first_vertex ^ second_vertex);
 					neighbours_bitmap[second_vertex] = DIMENSION_BITS ^ (first_vertex ^ second_vertex);
 				}
@@ -415,7 +415,7 @@ namespace cube {
 			while (actual_path.found_path[actual_vertex] != INVALID)
 				actual_vertex++;
 			second_external = actual_vertex;
-			if (one_cnt[first_external ^ second_external] != 1) 
+			if (hamming[first_external ^ second_external] != 1) 
 				//Not neighbours, different path needed. 
 				return;
 			else { 
@@ -430,8 +430,8 @@ namespace cube {
 			sfi posibilities_count = DIMENSION; //larger than any possible result
 			sfi best_vertex = 0;
 			FOR_VERTICES(vertex_id) {
-				if (actual_path.found_path[vertex_id] == INVALID && one_cnt[neighbours_bitmap[vertex_id]] < posibilities_count) {
-					posibilities_count = one_cnt[neighbours_bitmap[vertex_id]];
+				if (actual_path.found_path[vertex_id] == INVALID && hamming[neighbours_bitmap[vertex_id]] < posibilities_count) {
+					posibilities_count = hamming[neighbours_bitmap[vertex_id]];
 					best_vertex = vertex_id;
 				}
 			}

@@ -14,20 +14,32 @@ namespace cube {
 		//Whether input file was selected
 		static bool is_input;
 
+		//Whether compressed input file was selected
+		static bool is_comp_input;
+
 		//Whether output file for matchings was selected
-		static bool is_output1;
+		static bool is_output;
+
+		//Whether output file for compressed matchings was selected
+		static bool is_comp_output;
 
 		//Whether output file for paths was selected
-		static bool is_output2;
+		static bool is_path_output;
 
 		//Input file name 
 		static std::string input_file;
 
+		//Compressed input file name
+		static std::string comp_input_file;
+
 		//Matching output file name
-		static std::string output1_file;
+		static std::string output_file;
+
+		//Compressed matching output file name
+		static std::string comp_output_file;
 
 		//Path output file name
-		static std::string output2_file;
+		static std::string path_output_file;
 	};
 }
 
